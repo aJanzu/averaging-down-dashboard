@@ -1,4 +1,6 @@
 # Averaging Down Dashboard
+## Live Demo
+https://ajanzu.github.io/averaging-down-dashboard/
 
 A polished static web app for tracking your stock holdings, monitoring how far each name sits below its 52-week high, and ranking potential "double dip" candidates with a more thoughtful scoring model.
 
