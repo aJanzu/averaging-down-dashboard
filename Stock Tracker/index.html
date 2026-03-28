@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Averaging Down Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero-copy-block">
+          <p class="eyebrow">Portfolio decision support</p>
+          <h1>Know which holdings deserve another bite.</h1>
+          <p class="hero-copy">
+            Track live prices, measure how far each position sits below its
+            52-week high, and rank holdings with a cleaner averaging-down score
+            that blends valuation, cost basis, and target allocation.
+          </p>
+          <div class="hero-notes">
+            <div class="hero-note">
+              <strong>What it weighs</strong>
+              <span>Discount to 52-week high, current gain/loss, and position sizing.</span>
+            </div>
+            <div class="hero-note">
+              <strong>Proxy aware</strong>
+              <span>Mutual funds like `SWPPX` can be priced with ETF proxies like `SPY`.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <div class="hero-card-top">
+            <div>
+              <p class="mini-label">Market connection</p>
+              <h2>Finnhub API</h2>
+            </div>
+            <span class="live-dot">Live</span>
+          </div>
+          <label class="field-label" for="apiKey">API key</label>
+          <div class="api-row">
+            <input
+              id="apiKey"
+              name="apiKey"
+              type="password"
+              placeholder="Paste your free Finnhub key"
+              autocomplete="off"
+            />
+            <button id="saveApiKeyBtn" class="secondary-btn" type="button">
+              Save
+            </button>
+          </div>
+          <p class="helper-text">
+            Sign up at
+            <a href="https://finnhub.io/register" target="_blank" rel="noreferrer">finnhub.io/register</a>,
+            then paste your key here.
+          </p>
+          <button id="refreshBtn" class="primary-btn" type="button">
+            Refresh market data
+          </button>
+          <p class="credit-line">Created by Janzu</p>
+        </div>
+      </header>
+
+      <main class="dashboard">
+        <section class="grid-two">
+          <section class="panel form-panel">
+            <div class="panel-heading">
+              <p class="mini-label">Portfolio input</p>
+              <h2>Add or update a holding</h2>
+              <p>
+                Enter the ticker you own, shares, optional cost basis, and your
+                target portfolio weight to make the score more useful.
+              </p>
+            </div>
+            <form id="holdingForm" class="holding-form">
+              <label>
+                <span>Ticker you hold</span>
+                <input id="ticker" name="ticker" type="text" maxlength="10" placeholder="AAPL" required />
+              </label>
+              <label>
+                <span>Shares</span>
+                <input id="shares" name="shares" type="number" min="0" step="0.0001" placeholder="10" required />
+              </label>
+              <label>
+                <span>Total cost basis</span>
+                <input id="totalCostBasis" name="totalCostBasis" type="number" min="0" step="0.01" placeholder="1823.50" />
+              </label>
+              <label>
+                <span>Target allocation %</span>
+                <input id="targetAllocation" name="targetAllocation" type="number" min="0" step="0.1" placeholder="12" />
+              </label>
+              <label>
+                <span>Pricing symbol override</span>
+                <input id="pricingTicker" name="pricingTicker" type="text" maxlength="10" placeholder="Optional, like SPY" />
+              </label>
+              <label>
+                <span>Notes</span>
+                <input id="notes" name="notes" type="text" maxlength="80" placeholder="Optional thesis or reminder" />
+              </label>
+              <div class="form-actions">
+                <button id="saveHoldingBtn" class="primary-btn" type="submit">Save holding</button>
+                <button id="cancelEditBtn" class="secondary-btn hidden" type="button">Cancel edit</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="stack">
+            <section class="summary-grid">
+              <article class="summary-card">
+                <p>Total holdings</p>
+                <strong id="holdingCount">0</strong>
+              </article>
+              <article class="summary-card">
+                <p>Portfolio value</p>
+                <strong id="portfolioValue">$0.00</strong>
+              </article>
+              <article class="summary-card">
+                <p>Average off high</p>
+                <strong id="averageDrop">0.00%</strong>
+              </article>
+              <article class="summary-card">
+                <p>Best add today</p>
+                <strong id="bestCandidate">None yet</strong>
+              </article>
+            </section>
+            <p id="status" class="status-pill">Add a ticker to get started.</p>
+          </section>
+        </section>
+
+        <section class="panel table-panel">
+          <div class="panel-heading table-heading">
+            <div>
+              <p class="mini-label">Ranked holdings</p>
+              <h2>Portfolio scoreboard</h2>
+              <p>
+                Ranked by weighted double-dip score so discounted, underweight,
+                below-cost positions surface first.
+              </p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Holding</th>
+                  <th>Pricing</th>
+                  <th>Shares</th>
+                  <th>Current</th>
+                  <th>52W High</th>
+                  <th>Off High</th>
+                  <th>Weight</th>
+                  <th>Target</th>
+                  <th>Cost Basis</th>
+                  <th>P/L</th>
+                  <th>Score</th>
+                  <th>Take</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="holdingsTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <template id="rowTemplate">
+      <tr>
+        <td data-cell="holding"></td>
+        <td data-cell="pricing"></td>
+        <td data-cell="shares"></td>
+        <td data-cell="current"></td>
+        <td data-cell="high"></td>
+        <td data-cell="drop"></td>
+        <td data-cell="weight"></td>
+        <td data-cell="target"></td>
+        <td data-cell="costBasis"></td>
+        <td data-cell="profit"></td>
+        <td data-cell="score"></td>
+        <td data-cell="signal"></td>
+        <td>
+          <div class="row-actions">
+            <button class="secondary-btn edit-btn" type="button">Edit</button>
+            <button class="ghost-btn remove-btn" type="button">Remove</button>
+          </div>
+        </td>
+      </tr>
+    </template>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
